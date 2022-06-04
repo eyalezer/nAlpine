@@ -1,0 +1,41 @@
+#!/sbin/openrc-run
+
+name="sServerApp"
+description="Simple server"
+
+: ${node_user:=root}
+: ${node_group:=root}
+: ${node_home:=/tmp}
+
+: ${node_log:=/var/log/sserver.log}
+: ${node_pidfile:=/run/sserver.pid}
+
+node_command="/usr/sbin/sserver"
+node_command_args=""
+
+depend() {
+        use net
+}
+
+start() {
+        ebegin "Starting Simple Server"
+
+        checkpath -d -o "$node_user:$node_group" -m750 "$(dirname "$node_pidfile")"
+
+        start-stop-daemon --start \
+                --background --quiet \
+                --make-pidfile --pidfile=$node_pidfile \
+                --stdout "$node_log" --stderr "$node_log" \
+                --user "$node_user" \
+                --chuid "$node_user" \
+                --exec $node_command -- $node_command_args
+        eend $?
+}
+
+stop() {
+        ebegin "Stopping Simple Server"
+        start-stop-daemon --stop \
+                --pidfile=$node_pidfile \
+                --exec $node_command
+        eend $?
+}

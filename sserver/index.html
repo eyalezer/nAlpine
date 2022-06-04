@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <title>AlpineDLNA</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <style type='text/css'>
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      display: inline-block;
+      margin: 10px;
+    }
+    a{
+      text-decoration: none;
+      color: initial;
+      font-weight: bold;
+      border: 1px solid gray;
+      padding: 5px 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>MiniDLNA</h2>
+  <ul>
+        <li><a href='/restart'>ReStart</a></li>
+        <li><a href='/rescan'>ReScan</a></li>
+        <li><a href='/rebuild'>ReBuild</a></li>
+  </ul>
+  <h2>General</h2>
+  <ul>
+    <li><a href='/ssh'>ReStart SSH</a></li>
+    <li><a href='/#' onclick='frame()'>Refresh iFrame</a></li>
+  </ul>
+  <br/>
+  <script type='text/javascript'>
+    var frame = function() {
+      var frameID = 'nAlpineFrame';
+      if(document.getElementById(frameID)){ document.body.removeChild(document.getElementById(frameID)); }
+      var iframe = document.createElement('iframe');
+      Object.assign(iframe, {id: frameID, frameBorder: 0, src: '//' + window.location.hostname + ':8200'});
+      Object.assign(iframe.style, {width: '100%', 'min-height': '750px'});
+      document.body.appendChild(iframe);
+    };
+    window.onload = function() {
+      if(window.location.pathname != '/'){ window.location.pathname = '/'; }
+      frame();
+    };
+  </script>
+</body>
+</html>
