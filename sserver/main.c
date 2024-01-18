@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define DLOG 0
 #define MAX_BUF_LEN 1024
@@ -124,7 +125,7 @@ int parse_first_http(const char* http_req, const int req_len)
 }
 
 static const char sendok[MAX_BUF_LEN] = "HTTP/1.0 200 OK\r\nServer: SimpleWebserver\r\nContent-Type: text/html\r\n\n";
-static const char htmlBuf[MAX_BUF_LEN] = "<!doctypehtml><html lang=en><title>AlpineDLNA</title><meta content='width=device-width,initial-scale=1'name=viewport><style>ul{margin:0;padding:0}li{display:inline-block;margin:10px}a{text-decoration:none;color:initial;font-weight:700;border:1px solid gray;padding:5px 20px}</style><h2>MiniDLNA</h2><ul><li><a href=/restart>ReStart</a><li><a href=/rescan>ReScan</a><li><a href=/rebuild>ReBuild</a></ul><h2>General</h2><ul><li><a href=/ssh>ReStart SSH</a><li><a href=/# onclick=frame()>Refresh iFrame</a></ul><br><script>var frame=function(){var e='nAlpineFrame';document.getElementById(e)&&document.body.removeChild(document.getElementById(e));var n=document.createElement('iframe');Object.assign(n,{id:e,frameBorder:0,src:'//'+window.location.hostname+':8200'}),Object.assign(n.style,{width:'100%','min-height':'750px'}),document.body.appendChild(n)};window.onload=function(){'/'!=window.location.pathname&&(window.location.pathname='/'),frame()}</script>";
+static const char htmlBuf[MAX_BUF_LEN] = "<!doctypehtml><html lang=en><title>AlpineDLNA</title><meta content='width=device-width,initial-scale=1'name=viewport><style>ul{margin:0;padding:0}li{display:inline-block;margin:10px}a{text-decoration:none;color:initial;font-weight:700;border:1px solid gray;padding:5px 20px}</style><h2>AlpineDLNA</h2><ul><li><a href=/restart>ReStart</a><li><a href=/rescan>ReScan</a><li><a href=/rebuild>ReBuild</a></ul><h2>General</h2><ul><li><a href=/ssh>ReStart SSH</a><li><a href=/# onclick=frame()>Refresh iFrame</a></ul><br><script>var frame=function(){var e='nAlpineFrame';document.getElementById(e)&&document.body.removeChild(document.getElementById(e));var n=document.createElement('iframe');Object.assign(n,{id:e,frameBorder:0,src:'//'+window.location.hostname+':8200'}),Object.assign(n.style,{width:'100%','min-height':'750px'}),document.body.appendChild(n)};window.onload=function(){'/'!=window.location.pathname&&(window.location.pathname='/'),frame()}</script>";
 
 int handle_client(int connfd)
 {
@@ -181,7 +182,7 @@ int handle_client(int connfd)
 }
 
 /* listening port */
-#define SERV_PORT 80
+#define SERV_PORT 8202
 
 /* maxium of allowed clients at the same time */
 #define MAX_CLIENTS 10
@@ -227,7 +228,11 @@ int main(int argc, char *argv[])
 
 	clientcount = 0;
 
-	printf("starting server, port: %i, pid: %i\n", SERV_PORT, getpid());
+	char *server_port = getenv("SERVER_PORT");
+	unsigned int port = atoi(server_port ? server_port : "null");
+	port = port ? port : SERV_PORT;
+
+	printf("starting server, port: %i, pid: %i\n", port, getpid());
 
 	/* Create Server-Socket of type IP( IP: 0) */
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -240,8 +245,8 @@ int main(int argc, char *argv[])
 	/* Prepare our address-struct */
 	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_addr.s_addr = htonl(INADDR_ANY); /* bind server to all interfaces */
-	servaddr.sin_port = htons(SERV_PORT);		  /* bind server to SERV_PORT */
+	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);	/* bind server to all interfaces */
+	servaddr.sin_port = htons(port);		/* bind server to port */
 
 	// ReUsing time_wait state connections
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)

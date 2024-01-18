@@ -1,0 +1,15 @@
+---
+version: "3.8"
+
+services:
+  nalpine:
+    image: nalpine:latest
+    container_name: nalpine
+    network_mode: host
+    build: .
+    privileged: true
+    volumes:
+      - /home/eyal/Downloads/media:/media/media    
+    environment:
+      - SERVER_PORT=8202
+    restart: unless-stopped
