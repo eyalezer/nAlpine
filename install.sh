@@ -14,6 +14,10 @@ echo "Enables ssh for root user"
 sed -i 's/#PermitRootLogin prohibit-password|PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 # SSH
 
+# Setup
+sed -i 's/^\#rc_env_allow=\"VAR1 VAR2\"$/rc_env_allow="\*"/' /etc/rc.conf;
+# Setup
+
 # Disk Mount
 echo "Enables auto disk mount"
 grep -qF 'vboxsf' /etc/fstab || echo "Media		/media/media	vboxsf	uid=0,gid=102	0 0" >> /etc/fstab
@@ -21,7 +25,7 @@ grep -qF 'vboxsf' /etc/fstab || echo "Media		/media/media	vboxsf	uid=0,gid=102	0
 
 # Minidlna
 echo "Installing Minidlna"
-sed -i 's/#http:\/\/dl-cdn.alpinelinux.org\/alpine\/edge\/community/http:\/\/dl-cdn.alpinelinux.org\/alpine\/edge\/community/' /etc/apk/repositories
+sed -i 's/^(#)(.*)(\/community)$/\2\3/' /etc/apk/repositories
 apk add --no-cache minidlna
 mkdir /var/cache/minidlna
 chown -R minidlna:minidlna /var/cache/minidlna
