@@ -3,17 +3,18 @@ FROM alpine:latest
 ARG WORK_DIR=/app
 WORKDIR ${WORK_DIR}
 
+RUN apk add --no-cache openrc
+
 COPY --chmod=755 sserver/bin/* /usr/sbin
 COPY --chmod=755 sserver/sserver-app /etc/init.d
 
 # Setup
 RUN ARCH=`uname -m` && \
     if [ "$ARCH" == "aarch64" ]; then \
-      apk add --no-cache libc6-compat openrc; \
+      apk add --no-cache libc6-compat; \
       rm -rf /usr/sbin/sserver; \
       mv /usr/sbin/sserver-arm /usr/sbin/sserver; \
     else \
-      apk add --no-cache openrc; \
       rm -rf /usr/sbin/sserver-arm; \
     fi; \
     sed -i 's/^\#rc_env_allow=\"VAR1 VAR2\"$/rc_env_allow="\*"/' /etc/rc.conf;
