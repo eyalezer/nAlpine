@@ -1,12 +1,15 @@
+name: nAlpine
+
 services:
   nalpine:
-    image: nalpine:latest
     container_name: nalpine
+    image: nalpine:latest
+    pull_policy: never
     network_mode: host
     build: .
-    privileged: true
     volumes:
-      - /home/eyal/Downloads/media:/media/media    
+      - /home/eyal/Downloads/media:/media/media
     environment:
       - SERVER_PORT=8202
+    privileged: true
     restart: unless-stopped
